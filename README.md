@@ -21,7 +21,7 @@
 
 > ### Check installation
 
-```
+```bash
 git --version
 ```
 
@@ -96,7 +96,7 @@ git diff --staged
 
 ### Create branch
 
-```
+```bash
 git branch feature-login
 ```
 
@@ -160,7 +160,7 @@ git push origin main
 
 ### First push
 
-```
+```bash
 git push -u origin main
 ```
 
@@ -321,37 +321,74 @@ Automation/CI/CD
 
 ---
 
-## <b>13. Open Source Fork Synchronization (Upstream)</b>
+## **13. Open Source Fork Synchronization (Upstream)**
 
-When contributing to open source, origin points to your personal fork, while upstream points to the main project repository.
+When contributing to open-source software, a distributed remote architecture is used to safely propose changes without modifying the core project repository directly:
 
-### Configure Upstream Remotes
+- **`origin`**: Points to your personal GitHub copy (your fork) where you have write access.
+- **`upstream`**: Points to the central, authoritative project repository maintained by the core team.
+
+---
+
+### **1. Configure Upstream Remotes**
+
+Execute this configuration step once per repository setup to link your local workspace to the authoritative project source.
 
 ```bash
 # Add the original project repository as upstream
-git remote add upstream https://github.com/original-owner/project.git
+git remote add upstream https://github.com
 
-# Verify that both origin and upstream are configured
+# Verify that both origin and upstream targets are registered
 git remote -v
 ```
 
-### Sync Fork Workflow
+---
 
-Keep your fork up-to-date with the original repository before starting new work.
+### **2. Core Synchronization Workflow**
+
+To maintain a clean history, treat your local `main` branch strictly as a read-only mirror of `upstream/main`. Do not commit development work directly to this branch.
+
+#### **Routine Fork Synchronization**
+
+Run this sequence before starting any new development to ensure your workspace matches the upstream repository state perfectly.
 
 ```bash
-# 1. Download the latest changes from the original repository
+# 1. Switch to your local main branch
+git checkout main
+
+# 2. Fetch the latest branches and commits from the authoritative source
 git fetch upstream
 
-# 2. Merge those changes into your local main branch
-git checkout main
-git merge upstream/main
+# 3. Align your local main branch exactly with the upstream main HEAD
+git reset --hard upstream/main
 
-# 3. Update your personal GitHub fork (normal push, no force needed)
-git push origin main
+# 4. Update your personal remote fork to reflect the synchronized state
+git push origin main --force
 ```
 
 ---
+
+### **3. Production Feature Branching Pipeline**
+
+To isolate your changes and avoid history divergence when maintainers use "Squash" or "Rebase" merge strategies, always develop inside isolated feature branches.
+
+#### **Development Lifecycle Execution**
+
+```bash
+# 1. Ensure your local main is synchronized (Execute Routine Sync above)
+
+# 2. Spin off an isolated feature branch for the specific issue or task
+git checkout -b feature/your-feature-name
+
+# 3. Stage and commit changes locally within the feature branch
+git add .
+git commit -m "feat: implement localized application logic"
+
+# 4. Push the feature branch to your personal remote repository
+git push origin feature/your-feature-name
+```
+
+_Note: Always open the upstream Pull Request from your remote feature branch (`origin/feature/your-feature-name`), never from your `main` branch. Once the Pull Request is merged, you can safely delete the feature branch locally and remotes._
 
 ## <b>14. Typical Developer Workflow</b>
 
@@ -365,7 +402,7 @@ git commit -m "add auth feature"
 git push origin feature-auth
 ```
 
-- ### Then open Pull Request.
+- ### Then open Pull Request
 
 ---
 
@@ -420,7 +457,7 @@ git commit --amend
 git commit --amend -m "New and improved commit message"
 ```
 
-- ### Add files without changing the message:
+- ### Add files without changing the message
 
 ```bash
 git add <file>
